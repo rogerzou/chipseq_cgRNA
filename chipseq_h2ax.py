@@ -4,7 +4,7 @@
 
 import src.chipseq as c
 
-# home directory of BAM files and 'analysis' output directory
+""" Home directory of BAM files and 'analysis' output directory; MODIFY AS APPROPRIATE. """
 base = "/Volumes/Lab-Home/rzou4/NGS_data/4_damage/191017_chipseq/"
 base_a = "/Volumes/Lab-Home/rzou4/NGS_data/4_damage/191017_chipseq/analysis/"
 

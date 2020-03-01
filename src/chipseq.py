@@ -32,15 +32,28 @@ def status_statement(current, final, count, chr=None):
 
 
 def hg38_generator():
-    """ Generate the number of base pairs for each chromosome
+    """ Generate the number of base pairs for each chromosome in hg38 (human)
 
-    :return generator that outputs the number of base pairs for each chromosome
-             in the format: [chr7, 159345973]
+    :return generator that outputs the number of base pairs for each chromosome in hg38
+            in the format: [chr7, 159345973]
 
     """
     dirname, filename = os.path.split(os.path.abspath(__file__))
-    with open(os.path.dirname(dirname) + "/lib/hg38.sizes", 'r') as f:   # parse sizes for each chromosome of hg38
-        for row in csv.reader(f, dialect='excel', delimiter='\t'):  # iterate over each chromosome
+    with open(os.path.dirname(dirname) + "/lib/hg38.sizes", 'r') as f:
+        for row in csv.reader(f, dialect='excel', delimiter='\t'):
+            yield row
+
+
+def mm10_generator():
+    """ Generate the number of base pairs for each chromosome in mm10 (mouse)
+
+    :return generator that outputs the number of base pairs for each chromosome in mm10
+            in the format: [chr7, 159345973]
+
+    """
+    dirname, filename = os.path.split(os.path.abspath(__file__))
+    with open(os.path.dirname(dirname) + "/lib/mm10.sizes", 'r') as f:
+        for row in csv.reader(f, dialect='excel', delimiter='\t'):
             yield row
 
 
@@ -84,17 +97,16 @@ def read_pair_align(read1, read2):
     r2pos = [x+1 for x in read2.positions]
     if read1.mate_is_reverse and r1pos[0] < r2pos[0]:  # read1 is earlier
         read = [r1pos[0], r1pos[-1], r2pos[0], r2pos[-1]]
-        # print("%s--%s>  <%s--%s" % tuple(read))
     elif read2.mate_is_reverse and r2pos[0] < r1pos[0]:  # read2 is earlier
         read = [r2pos[0], r2pos[-1], r1pos[0], r1pos[-1]]
-        # print("%s--%s>  <%s--%s" % tuple(read))
     else:
         read = []
-        print("FAIL")
+        # print("Skipping read pair from error in alignment.")
+    # print("%s--%s>  <%s--%s" % tuple(read))
     return read
 
 
-def get_read_subsets(filein, fileout, region_string, target):
+def get_read_subsets(filein, fileout, region_string, target, bool_array=None):
     """ Categorize fragments (paired reads) by its relationship to the target (cut) site
 
     For a target (cut) site, subset the fragments within region_range to
@@ -106,99 +118,75 @@ def get_read_subsets(filein, fileout, region_string, target):
                     multiple files where each file only contains reads from a specific category
     :param region_string: region of interest, formatted like this example: chr7:5527160-5532160
     :param target: coordinate within region_string that denotes the 4th nucleotide from PAM
+    :param bool_array: boolean array indicating whether to output the subsetted reads in the
+                       following order: [M, N, L, R, S1, S2, I]
 
     """
+
+    if bool_array is None:
+        bool_array = [True, True, False, False]
     bam = pysam.AlignmentFile(filein, 'rb')
     countM = 0      # fragments that span
     countN = 0      # fragments that don't span
     countL = 0      # fragments that don't span, on left
     countR = 0      # fragments that don't span, on right
-    countS1 = 0     # fragments where read1 is sequenced
-    countS2 = 0     # fragments where read2 is sequenced
-    countI = 0      # reads with indels
     counter = 0     # count total number of reads
     fileM = fileout + "_M.bam"
     fileN = fileout + "_N.bam"
     fileL = fileout + "_L.bam"
     fileR = fileout + "_R.bam"
-    fileS1 = fileout + "_S1.bam"
-    fileS2 = fileout + "_S2.bam"
-    fileI = fileout + "_I.bam"
     readsM = pysam.AlignmentFile(fileM, "wb", template=bam)
     readsN = pysam.AlignmentFile(fileN, "wb", template=bam)
     readsL = pysam.AlignmentFile(fileL, "wb", template=bam)
     readsR = pysam.AlignmentFile(fileR, "wb", template=bam)
-    readsS1 = pysam.AlignmentFile(fileS1, "wb", template=bam)
-    readsS2 = pysam.AlignmentFile(fileS2, "wb", template=bam)
-    readsI = pysam.AlignmentFile(fileI, "wb", template=bam)
     for read1, read2 in read_pair_generator(bam, region_string):
-        counter += 1
         read = read_pair_align(read1, read2)
+        if not read:
+            continue
+        counter += 1
         if read[0] < target < read[3]:          # fragments that span
             countM += 1
             readsM.write(read1)
             readsM.write(read2)
-            sequencedend = False
-            if read[0] < target < read[1]:      # fragments where read1 is sequenced
-                countS1 += 1
-                readsS1.write(read1)
-                readsS1.write(read2)
-                sequencedend = True
-            if read[2] < target < read[3]:      # fragments where read2 is sequenced
-                countS2 += 1
-                readsS2.write(read1)
-                readsS2.write(read2)
-                sequencedend = True
-            # get indel-containing fragments
-            if sequencedend and ('I' in read1.cigarstring or 'I' in read2.cigarstring):
-                countI += 1
-                readsI.write(read1)
-                readsI.write(read2)
-        else:                                       # fragments that don't span
+        elif target + 5 >= read[0] >= target:   # fragments that begin 5bp of cleavage site
+            countR += 1
+            readsR.write(read1)
+            readsR.write(read2)
             countN += 1
             readsN.write(read1)
             readsN.write(read2)
-            # separate reads by bias left vs right
-            if read[0] >= target:
-                countR += 1
-                readsR.write(read1)
-                readsR.write(read2)
-            elif read[-1] <= target:
-                countL += 1
-                readsL.write(read1)
-                readsL.write(read2)
+        elif target - 5 <= read[-1] <= target:   # fragments that end 5bp of cleavage site
+            countL += 1
+            readsL.write(read1)
+            readsL.write(read2)
+            countN += 1
+            readsN.write(read1)
+            readsN.write(read2)
     readsM.close()
     readsN.close()
     readsL.close()
     readsR.close()
-    readsS1.close()
-    readsS2.close()
-    readsI.close()
+    file_array = [fileM, fileN, fileL, fileR]
+    for i, boo in enumerate(bool_array):
+        file_i = file_array[i]
+        if boo:
+            pysam.sort("-o", file_i, file_i)
+            os.system("samtools index " + file_i)
+        else:
+            os.system("rm " + file_i)
+    print("%i span | %i end/start | %i window total | %i mapped total"
+          % (countM, countN, counter, bam.mapped))
     bam.close()
-    pysam.sort("-o", fileM, fileM)
-    pysam.sort("-o", fileN, fileN)
-    pysam.sort("-o", fileL, fileL)
-    pysam.sort("-o", fileR, fileR)
-    pysam.sort("-o", fileS1, fileS1)
-    pysam.sort("-o", fileS2, fileS2)
-    pysam.sort("-o", fileI, fileI)
-    os.system("samtools index " + fileM)
-    os.system("samtools index " + fileN)
-    os.system("samtools index " + fileL)
-    os.system("samtools index " + fileR)
-    os.system("samtools index " + fileS1)
-    os.system("samtools index " + fileS2)
-    os.system("samtools index " + fileI)
-    print("%i span | %i read1seq | %i read2seq | %i indels | %i !span | %i left | %i right | %i total"
-          % (countM, countS1, countS2, countI, countN, countL, countR, counter))
 
 
-def to_wiggle_pairs(filein, fileout, region_string):
+def to_wiggle_pairs(filein, fileout, region_string, endcrop=False):
     """ Constructs fragment pile-ups in wiggle format using paired-end information
 
     :param filein: BAM file that contains paired-end reads
     :param fileout: base output file name with extension (.wig) omitted
     :param region_string: region of interest, formatted like this example: chr7:5527160-5532160
+    :param endcrop: if True, don't count the first and last read of a fragment - the output for each
+                    position is effectively a safe underestimate for the number of spanning reads
 
     """
     [chr, sta, end] = re.split('[:-]', region_string)
@@ -210,15 +198,20 @@ def to_wiggle_pairs(filein, fileout, region_string):
     bam = pysam.AlignmentFile(filein, 'rb')
     for read1, read2 in read_pair_generator(bam, region_string):
         read = read_pair_align(read1, read2)
-        wlist = [x+1 if read[0]-sta <= i <= read[-1]-sta else x for i, x in enumerate(wlist)]
-        # print("%i\t%i" % (read[0]-sta, read[-1]-sta))
+        if not read:
+            continue
+        if endcrop:
+            wlist = [x+1 if read[0]-sta < i < read[-1]-sta else x for i, x in enumerate(wlist)]
+        else:
+            wlist = [x+1 if read[0]-sta <= i <= read[-1]-sta else x for i, x in enumerate(wlist)]
     for i, x in enumerate(wlist):
         wig.write("%i\t%i\n" % (sta + i, x))
+    print("Max peak height is %i" % max(wlist))
     wig.close()
     bam.close()
 
 
-def to_wiggle_windows(filein, fileout, window, chr=None):
+def to_wiggle_windows(filein, fileout, window, chr=None, generator=hg38_generator()):
     """ Outputs wiggle file that counts number of reads in each window
 
     :param filein: BAM file that contains paired-end reads
@@ -227,11 +220,13 @@ def to_wiggle_windows(filein, fileout, window, chr=None):
                 outputs the number of reads in each window)
     :param chr: array of chromosome strings to limit analysis to particular chromosomes
                 (i.e. ['chr7', 'chr8'])
+    :param generator: species-specific generator that outputs the number of base pairs for each
+                      chromosome in the format: [chr7, 159345973]
 
     """
     bam = pysam.AlignmentFile(filein, 'rb')
     wig = open(fileout + ".wig", "w")
-    for row in hg38_generator():  # iterate over each chromosome
+    for row in generator:  # iterate over each chromosome
         if chr is None or (chr is not None and row[0] in chr):      # checks for chr #
             chr_i = row[0]
             wig.write("fixedStep\tchrom=%s\tstart=0 step=%i\n" % (chr_i, window))
@@ -245,7 +240,7 @@ def to_wiggle_windows(filein, fileout, window, chr=None):
     bam.close()
 
 
-def to_bins(filein, fileout, window, numbins, chr=None):
+def to_bins(filein, fileout, window, numbins, chr=None, generator=hg38_generator()):
     """ Outputs CSV file that counts number of reads in each bin (column) for each window (row)
 
     :param filein: BAM file that contains paired-end reads
@@ -255,10 +250,12 @@ def to_bins(filein, fileout, window, numbins, chr=None):
     :param numbins: number of bins for each window
     :param chr: array of chromosome strings to limit analysis to particular chromosomes
                 (i.e. ['chr7', 'chr8'])
+    :param generator: species-specific generator that outputs the number of base pairs for each
+                      chromosome in the format: [chr7, 159345973]
 
     """
     bam = pysam.AlignmentFile(filein, 'rb')
-    for row in hg38_generator():                                    # iterate over each chromosome
+    for row in generator:                                    # iterate over each chromosome
         if chr is None or (chr is not None and row[0] in chr):      # checks for chr #
             count = int(int(row[1]) / window)                       # number of windows
             res = int(window / numbins)
