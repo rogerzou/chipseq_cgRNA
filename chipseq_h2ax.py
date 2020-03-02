@@ -8,7 +8,7 @@ import src.chipseq as c
 base = "/Volumes/Lab-Home/rzou4/NGS_data/4_damage/191017_chipseq/"
 base_a = "/Volumes/Lab-Home/rzou4/NGS_data/4_damage/191017_chipseq/analysis/"
 
-win = 50000         # window span in base pairs
+win = 50000             # window span in base pairs
 numbins = 50            # number of bins per window for significance testing
 
 # Covert BAM file to wiggle file that counts the number of reads in each window span
