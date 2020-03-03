@@ -33,6 +33,7 @@ genomepath="/mnt/c/Users/Roger/bioinformatics/hg38_bowtie2/hg38"
 ##########################################
 
 
+# processing arguments, proceed with bioinformatic pipeline
 main() {
   numthreads=1                      # default number of parallel processes
   while getopts 'p:s:' opt; do      # pass number of reads to subset via -s option
@@ -54,6 +55,7 @@ main() {
 }
 
 
+# subset BAM file only if [-s] argument is included, otherwise,perform main bioinformatics pipeline
 process() {
   if [ ! -z ${3+x} ] ; then
     subset $3 $2
@@ -63,6 +65,7 @@ process() {
 }
 
 
+# main bioinformatics pipeline (alignment to indexing and read statistics)
 align2bam() {
 
   # Align reads to either hg38 or mm10 using bowtie2
@@ -96,11 +99,12 @@ align2bam() {
 }
 
 
+# normalize by mapped read counts, only if script has been run before without [-s] flag so that "*_rmdup.bam" files have been generated in align2bam()
 subset() {
 
   if test -f "$2_rmdup.bam"; then       # only run program if *_rmdup.bam exists
 
-    # calculate number of
+    # Subset BAM file by number of mapped reads
     total=$( samtools view -F 0x04 -c "$2_rmdup.bam" )
     frac=$(echo "$1/$total" | bc -l)
     if (( $(echo "$frac >= 1" | bc -l) )) ; then
@@ -114,7 +118,7 @@ subset() {
     samtools index \
     "$2_subset.bam" ;
 
-    # delete index output for rmdup
+    # Delete index output for rmdup
     rm "$2_rmdup.bam.bai"
 
     # Retrieve read count statistics

@@ -211,7 +211,7 @@ def to_wiggle_pairs(filein, fileout, region_string, endcrop=False):
     bam.close()
 
 
-def to_wiggle_windows(filein, fileout, window, chr=None, generator=hg38_generator()):
+def to_wiggle_windows(filein, fileout, window, chr=None, generator=None):
     """ Outputs wiggle file that counts number of reads in each window
 
     :param filein: BAM file that contains paired-end reads
@@ -219,11 +219,13 @@ def to_wiggle_windows(filein, fileout, window, chr=None, generator=hg38_generato
     :param window: size of window (i.e. if 500, genome is divided into 500bp windows, function
                 outputs the number of reads in each window)
     :param chr: array of chromosome strings to limit analysis to particular chromosomes
-                (i.e. ['chr7', 'chr8'])
+                (i.e. ['chr7', 'chr8']). If not set, then all chromosomes are processed.
     :param generator: species-specific generator that outputs the number of base pairs for each
-                      chromosome in the format: [chr7, 159345973]
+                      chromosome in the format: [chr7, 159345973]. If not set, then hg38 is used.
 
     """
+    if not generator:
+        generator = hg38_generator()
     bam = pysam.AlignmentFile(filein, 'rb')
     wig = open(fileout + ".wig", "w")
     for row in generator:  # iterate over each chromosome
@@ -240,7 +242,7 @@ def to_wiggle_windows(filein, fileout, window, chr=None, generator=hg38_generato
     bam.close()
 
 
-def to_bins(filein, fileout, window, numbins, chr=None, generator=hg38_generator()):
+def to_bins(filein, fileout, window, numbins, chr=None, generator=None):
     """ Outputs CSV file that counts number of reads in each bin (column) for each window (row)
 
     :param filein: BAM file that contains paired-end reads
@@ -249,11 +251,13 @@ def to_bins(filein, fileout, window, numbins, chr=None, generator=hg38_generator
     :param window: size of window (i.e. if 500, genome is divided into 500bp windows)
     :param numbins: number of bins for each window
     :param chr: array of chromosome strings to limit analysis to particular chromosomes
-                (i.e. ['chr7', 'chr8'])
+                (i.e. ['chr7', 'chr8']). If not set, then all chromosomes are processed.
     :param generator: species-specific generator that outputs the number of base pairs for each
-                      chromosome in the format: [chr7, 159345973]
+                      chromosome in the format: [chr7, 159345973]. If not set, then hg38 is used.
 
     """
+    if not generator:
+        generator = hg38_generator()
     bam = pysam.AlignmentFile(filein, 'rb')
     for row in generator:                                    # iterate over each chromosome
         if chr is None or (chr is not None and row[0] in chr):      # checks for chr #
