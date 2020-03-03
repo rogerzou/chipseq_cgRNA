@@ -1,4 +1,4 @@
-Custom analysis software for ChIP-seq of DNA repair proteins after Cas9-mediated DSBs
+Custom analysis software for ChIP-seq of DNA repair proteins after CRISPR/Cas9-mediated DSBs
 ====
 
 ## Software requirements
@@ -7,7 +7,11 @@ Custom analysis software for ChIP-seq of DNA repair proteins after Cas9-mediated
 - pysam (https://pysam.readthedocs.io/en/latest/installation.html)
 - bowtie2 (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 - samtools (http://www.htslib.org/download/)
+- Ensure that both `samtools` and `bowtie2` are added to path and can be called directly from bash
 
+## Data requirements
+- The data for MRE11 and gH2AX ChIP-seq before/after Cas9 activation with light can be downloaded from [Link](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA609749)
+- The data from DISCOVER-seq (Wienert & Wyman et al, Science, 2019) for comparison can be downloaded from [Link](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA509652)
 
 ## Generate processed BAM files (if starting from raw FASTQ files)
 1. Download sequencing reads in FASTQ format from SRA
@@ -23,48 +27,20 @@ Custom analysis software for ChIP-seq of DNA repair proteins after Cas9-mediated
 4. Generate FASTA file indices
     - `samtools faidx hg38_bowtie2/hg38.fa`
     - `samtools faidx mm10_bowtie2/mm10.fa`
-5. Align reads to either hg38 or mm10 using bowtie2
-    - will only use hg38 as demonstration from now on, simply replace with mm10 as desired.
-   ```
-   bowtie2 -q --local -X 1000 hg38_bowtie2/hg38 \
-   -1 /path/to/read1.fastq \
-   -2 /path/to/read2.fastq \ 
-   -S /path/to/output.sam
-   ```
-6. Convert from SAM to BAM, filter for mapping quality >=25 and singleton reads
-    ```
-   samtools view -h -S -b -F0x08 -q25 \
-   /path/to/output.sam \
-   /path/to/output_unsorted.bam
-   ```
-7. Add mate score tags to ensure that paired-end reads contain correct information about the mate reads
-   ```
-   samtools fixmate -m \
-   /path/to/output_unsorted.bam \
-   /path/to/output_fixmate.bam
-   ```
-8. Sort BAM file entries by genomic position
-   ```
-   samtools sort \
-   /path/to/output_fixmate.bam \
-   /path/to/output_sorted.bam
-   ```
-9. Remove potential PCR duplicates
-   ```
-   samtools markdup -r \
-   /path/to/output_sorted.bam \
-   /path/to/output_rmdup.bam
-   ```
-10. (optional) Subset BAM files to normalize by # of reads in a set  
-
-11. Index sorted BAM file
-    ``` samtools index /path/to/output_final.bam ```
+5. Modify the first lines of bash script `process_reads.sh`
+    - Fill the list variable `filelist` with paths to each **sample name** for processing. Note that the actual file paths include the **sample name** followed by "_1.fastq" or "_2.fastq", denoting read1 or read2 of paired-end reads, respectively.
+    - Fill in the path to the indexed genome denoted by variable `genomepath`.
+6. Run the following code snippet, where `-p` denotes the number of samples to process in parallel - modify accordingly. This performs genome alignment, filtering, sorting, removal of PCR duplicates, indexing, and sample statistics output.
+    ```bash process_reads.sh -p 6```
+7. *(optional)* For fair comparison between different time points in a timeseries, we subset reads from all relevant samples to the sample with the fewest reads of the set. Run the following code snippet, where `-s` inputs the number of mapped reads to subset for each sample - adjust accordingly. 
+    ```bash process_reads.sh -p 6 -s 24000000```
 
 ## Start from pre-processed BAM files
-We have included pre-processed sequencing reads in BAM format, which is the output of the previous
-section.
+In addition to raw paired-end reads in FASTQ format, we have also uploaded pre-processed sequencing reads in BAM format to SRA. These are the output of the previous section.
 1. Download pre-processed paired-end reads in BAM format from SRA.
 2. Move the downloaded data for MRE11 and gH2AX ChIP-seq to the desired folder.
+3. If not already done, index the downloaded BAM file
+    ``` samtools index /path/to/output.bam ```
 
 ### chipseq_mre11.py
 #### This script runs the code for analyzing MRE11 ChIP-seq data after activation of Cas9/cgRNA targeting ACTB
@@ -86,13 +62,17 @@ they should be.
 ### discoverseq_mre11.py
 #### This scripts runs the code for analyzing MRE11 ChIP-seq data from Wienert & Wyman et al (Science, 2019).
 1. FASTQ reads with the following SRA run accession codes (SRR) were downloaded from https://www.ncbi.nlm.nih.gov/bioproject/PRJNA509652
-``` SRR8550692, SRR8550673, SRR8550703, SRR8550680, SRR8550681, SRR8550704, SRR8550684, SRR8550705, SRR8550693, SRR8550695, SRR8553800, SRR8553810, SRR8553804, SRR8553806 ```
+```
+SRR8550692, SRR8550673, SRR8550703, SRR8550680, SRR8550681, SRR8550704, SRR8550684, SRR8550705, SRR8550693, SRR8550695, SRR8553800, SRR8553810, SRR8553804, SRR8553806
+```
 2. Generate BAM files from raw FASTQ reads, following instructions from the previous section (up to 9). These files will be used in this script.
 3. Ensure that the file names are correctly referenced in script, then run script
 
 ### discoverseq_others.py
 #### This scripts runs the code for analyzing ChIP-seq against multiple repair factors from Wienert & Wyman et al (Science, 2019).
 1. FASTQ reads with the following SRA run accession codes (SRR) were downloaded from https://www.ncbi.nlm.nih.gov/bioproject/PRJNA509652
-``` SRR8550677, SRR8550696, SRR8550679, SRR8550694, SRR8550682, SRR8550699, SRR8550678, SRR8550697, SRR8550698, SRR8550690 ```
+```
+SRR8550677, SRR8550696, SRR8550679, SRR8550694, SRR8550682, SRR8550699, SRR8550678, SRR8550697, SRR8550698, SRR8550690
+```
 2. Generate BAM files from raw FASTQ reads, following instructions from the previous section (up to 9). These files will be used in this script.
 3. Ensure that the file names are correctly referenced in script, then run script
