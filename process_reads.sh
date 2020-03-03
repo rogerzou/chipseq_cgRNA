@@ -3,12 +3,30 @@
 ########### USER ENTRY SECTION ###########
 # Enter paths to all samples for processing into this array
 declare -a filelist=(\
-"/mnt/d/testingfolder/mre11_actb_00m_rep1" \
-"/mnt/d/testingfolder/mre11_actb_02m_rep1" \
-"/mnt/d/testingfolder/mre11_actb_05m_rep1" \
-"/mnt/d/testingfolder/mre11_actb_15m_rep1" \
-"/mnt/d/testingfolder/mre11_actb_30m_rep1" \
-"/mnt/d/testingfolder/mre11_actb_60m_rep1" \
+"/mnt/d/cgRNA_SRA/mre11_actb_00m_rep1" \
+"/mnt/d/cgRNA_SRA/mre11_actb_02m_rep1" \
+"/mnt/d/cgRNA_SRA/mre11_actb_05m_rep1" \
+"/mnt/d/cgRNA_SRA/mre11_actb_15m_rep1" \
+"/mnt/d/cgRNA_SRA/mre11_actb_30m_rep1" \
+"/mnt/d/cgRNA_SRA/mre11_actb_60m_rep1" \
+"/mnt/d/cgRNA_SRA/mre11_actb_00m_rep2" \
+"/mnt/d/cgRNA_SRA/mre11_actb_02m_rep2" \
+"/mnt/d/cgRNA_SRA/mre11_actb_05m_rep2" \
+"/mnt/d/cgRNA_SRA/mre11_actb_15m_rep2" \
+"/mnt/d/cgRNA_SRA/mre11_actb_30m_rep2" \
+"/mnt/d/cgRNA_SRA/mre11_actb_60m_rep2" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_00m_rep1" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_02m_rep1" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_05m_rep1" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_15m_rep1" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_30m_rep1" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_60m_rep1" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_00m_rep2" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_02m_rep2" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_05m_rep2" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_15m_rep2" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_30m_rep2" \
+"/mnt/d/cgRNA_SRA/h2ax_actb_60m_rep2" \
 )
 # Enter path to indexed genome
 genomepath="/mnt/c/Users/Roger/bioinformatics/hg38_bowtie2/hg38"
