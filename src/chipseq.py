@@ -232,12 +232,12 @@ def to_wiggle_windows(filein, fileout, window, chr=None, generator=None):
         if chr is None or (chr is not None and row[0] in chr):      # checks for chr #
             chr_i = row[0]
             wig.write("fixedStep\tchrom=%s\tstart=0 step=%i\n" % (chr_i, window))
-            numbins = int(int(row[1]) / window)  # number of bins
-            for i in range(numbins):              # iterate over each bin (total - 1)
+            numwins = int(int(row[1]) / window)  # number of windows
+            for i in range(numwins):              # iterate over each bin (total - 1)
                 start1 = i * window
                 finish1 = (i + 1) * window - 1
                 wig.write("%i\n" % bam.count(chr_i, start1, finish1))
-                status_statement(i, numbins, 50, chr_i)
+                status_statement(i, numwins, 20, chr_i)
     wig.close()
     bam.close()
 
@@ -275,7 +275,7 @@ def to_bins(filein, fileout, window, numbins, chr=None, generator=None):
                     bin_start = win_start + j * res
                     bin_finish = win_start + (j + 1) * res - 1
                     cm[i, j + 3] = bam.count(chr_i, bin_start, bin_finish)
-                status_statement(i, numbins, 50, chr_i)
+                status_statement(i, count, 20, chr_i)
             np.savetxt(fileout + ".csv", cm, fmt='%s', delimiter=',')
     bam.close()
 
@@ -336,6 +336,5 @@ def ttest_two(samp_file, ctrl_file, fileout, p=0.01):
                 ot[i, 7] = np.nan
                 ot[i, 8] = np.nan
                 wig.write("%i\t%i\n" % (start_i, 0))
-            if i % 100 == 0:
-                print("Processed %i of %i total windows in %s" % (i, count, chr_i))
+            status_statement(i, count, 20, chr_i)
     np.savetxt(fileout + "_ttest.csv", ot, fmt='%s', delimiter=',')

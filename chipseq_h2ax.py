@@ -62,16 +62,16 @@ c.ttest_two(base_a+"gh2ax_60m_rep2.csv", base_a+"gh2ax_00m_rep2.csv", base_a+"tt
 # Converts BAM to WIG format in 40kb window around cut site to visualize sub kilobase-scale features
 tr = 5529660                    # ACTB cleavage site
 rr = "chr7:5509660-5549660"     # 40kb window centered at cut site
-c.to_wiggle_pairs(base+"gh2ax_actb_00m_rep1_final.bam", base_a+"40kb_00m_rep1", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_02m_rep1_final.bam", base_a+"40kb_02m_rep1", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_05m_rep1_final.bam", base_a+"40kb_05m_rep1", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_15m_rep1_final.bam", base_a+"40kb_15m_rep1", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_30m_rep1_final.bam", base_a+"40kb_30m_rep1", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_60m_rep1_final.bam", base_a+"40kb_60m_rep1", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_00m_rep1.bam", base_a+"40kb_00m_rep1", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_02m_rep1.bam", base_a+"40kb_02m_rep1", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_05m_rep1.bam", base_a+"40kb_05m_rep1", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_15m_rep1.bam", base_a+"40kb_15m_rep1", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_30m_rep1.bam", base_a+"40kb_30m_rep1", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_60m_rep1.bam", base_a+"40kb_60m_rep1", rr)
 
-c.to_wiggle_pairs(base+"gh2ax_actb_00m_rep2_final.bam", base_a+"40kb_00m_rep2", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_02m_rep2_final.bam", base_a+"40kb_02m_rep2", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_05m_rep2_final.bam", base_a+"40kb_05m_rep2", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_15m_rep2_final.bam", base_a+"40kb_15m_rep2", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_30m_rep2_final.bam", base_a+"40kb_30m_rep2", rr)
-c.to_wiggle_pairs(base+"gh2ax_actb_60m_rep2_final.bam", base_a+"40kb_60m_rep2", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_00m_rep2.bam", base_a+"40kb_00m_rep2", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_02m_rep2.bam", base_a+"40kb_02m_rep2", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_05m_rep2.bam", base_a+"40kb_05m_rep2", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_15m_rep2.bam", base_a+"40kb_15m_rep2", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_30m_rep2.bam", base_a+"40kb_30m_rep2", rr)
+c.to_wiggle_pairs(base+"gh2ax_actb_60m_rep2.bam", base_a+"40kb_60m_rep2", rr)

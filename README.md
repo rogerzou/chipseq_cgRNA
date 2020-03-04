@@ -55,12 +55,12 @@ In addition to raw paired-end reads in FASTQ format, we have also uploaded pre-p
 
 ## chipseq_h2ax.py
 #### This script runs the code for analyzing γH2AX ChIP-seq data after activation of Cas9/cgRNA targeting ACTB
-Open `chipseq_h2ax.py`, set `base` variable to be the path to the directory that holds the BAM files.
+1. Open `chipseq_h2ax.py`, set `base` variable to be the path to the directory that holds the BAM files.
 2. Create a new folder to hold the output of the analysis, set its path to `base_a`.
 3. Ensure that all file names are correct (if the BAM files were directly downloaded from SRA, they should be), then run script.
 
 ## discoverseq_mre11.py
-#### This scripts runs the code for analyzing MRE11 ChIP-seq data from [Wienert & Wyman et al (Science, 2019)](https://www.ncbi.nlm.nih.gov/pubmed/31000663).
+#### This scripts runs the code for analyzing MRE11 ChIP-seq data from [Wienert & Wyman et al (Science, 2019)](https://www.ncbi.nlm.nih.gov/pubmed/31000663)
 1. FASTQ reads with the following SRA run accession codes (SRR) were downloaded from [Here](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA509652).
     ```
     SRR8550692, SRR8550673, SRR8550703, SRR8550680, SRR8550681, SRR8550704, SRR8550684, SRR8550705, SRR8550693, SRR8550695, SRR8553800, SRR8553810, SRR8553804, SRR8553806
@@ -69,7 +69,7 @@ Open `chipseq_h2ax.py`, set `base` variable to be the path to the directory that
 3. Ensure that the file names are correctly referenced in script, then run script.
 
 ## discoverseq_others.py
-#### This scripts runs the code for analyzing ChIP-seq against multiple repair factors from [Wienert & Wyman et al (Science, 2019)](https://www.ncbi.nlm.nih.gov/pubmed/31000663).
+#### This scripts runs the code for analyzing ChIP-seq against multiple repair factors from [Wienert & Wyman et al (Science, 2019)](https://www.ncbi.nlm.nih.gov/pubmed/31000663)
 1. FASTQ reads with the following SRA run accession codes (SRR) were downloaded from [Here](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA509652).
     ```
     SRR8550677, SRR8550696, SRR8550679, SRR8550694, SRR8550682, SRR8550699, SRR8550678, SRR8550697, SRR8550698, SRR8550690
