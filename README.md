@@ -15,8 +15,8 @@ Custom analysis software for ChIP-seq of DNA repair proteins after CRISPR/Cas9-m
 ## Generate processed BAM files (if starting from raw FASTQ files)
 1. Download sequencing reads in FASTQ format from SRA
 2. Download either the human or mouse prebuilt bowtie2 indices
-    - [Human hg38](ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38/seqs_for_alignment_pipelines/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index.tar.gz)
-    - [Mouse mm10](ftp://ftp.ccb.jhu.edu/pub/data/bowtie2_indexes/mm10.zip)
+    - [Human hg38](http://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38/seqs_for_alignment_pipelines/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index.tar.gz)
+    - Mouse mm10 (ftp://ftp.ccb.jhu.edu/pub/data/bowtie2_indexes/mm10.zip)
     - move to the corresponding folders named `hg38_bowtie2/` or `mm10_bowtie2/`
 3. Download either human (hg38) or mouse (mm10) genome assembly in FASTA format
     - [hg38.fa](https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.fa.gz)
@@ -35,8 +35,10 @@ Custom analysis software for ChIP-seq of DNA repair proteins after CRISPR/Cas9-m
     ```
 7. *(optional)* For fair comparison between different time points in a timeseries, we subset reads from all relevant samples to the sample with the fewest reads of the set. Run the following code snippet, where `-s` inputs the number of mapped reads to subset for each sample; modify accordingly. This step takes less than 10 minutes.
     ```
-    bash process_reads.sh -p 6 -s 24000000
+    bash process_reads.sh -p 6 -s 24400000
     ```
+    - for MRE11, subsetted to 24,400,000 reads for both replicates.
+    - for γH2AX, subsetted to 43,275,829 reads for replicate 1 and 62,271,079 reads for replicate 2.
 
 ## Start from pre-processed BAM files
 In addition to raw paired-end reads in FASTQ format, we have also uploaded pre-processed sequencing reads in BAM format to SRA. These are the output of the previous section. It is highly recommended to start from these BAM files.

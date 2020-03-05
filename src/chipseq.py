@@ -206,7 +206,6 @@ def to_wiggle_pairs(filein, fileout, region_string, endcrop=False):
             wlist = [x+1 if read[0]-sta <= i <= read[-1]-sta else x for i, x in enumerate(wlist)]
     for i, x in enumerate(wlist):
         wig.write("%i\t%i\n" % (sta + i, x))
-    print("Max peak height is %i" % max(wlist))
     wig.close()
     bam.close()
 
