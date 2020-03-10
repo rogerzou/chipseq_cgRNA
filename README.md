@@ -37,8 +37,9 @@ Custom analysis software for ChIP-seq of DNA repair proteins after CRISPR/Cas9-m
     ```
     bash process_reads.sh -p 6 -s 24400000
     ```
-    - for MRE11, subsetted to 24,400,000 reads for both replicates.
-    - for γH2AX, subsetted to 43,275,829 reads for replicate 1 and 62,271,079 reads for replicate 2.
+    - for MRE11 timeseries, subsetted to 24,400,000 reads for both replicates.
+    - for γH2AX timeseries, subsetted to 43,275,829 reads for replicate 1 and 62,271,079 reads for replicate 2.
+    - for MRE11 DNA-PKcs inhibitor experiments, subsetted to 11,923,070 reads for both replicates.
 
 ## Start from pre-processed BAM files
 In addition to raw paired-end reads in FASTQ format, we have also uploaded pre-processed sequencing reads in BAM format to SRA. These are the output of the previous section. It is highly recommended to start from these BAM files.
