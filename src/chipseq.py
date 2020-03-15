@@ -258,24 +258,26 @@ def to_bins(filein, fileout, window, numbins, chr=None, generator=None):
     if not generator:
         generator = hg38_generator()
     bam = pysam.AlignmentFile(filein, 'rb')
-    for row in generator:                                    # iterate over each chromosome
+    cm = []
+    for row in generator:                                           # iterate over each chromosome
         if chr is None or (chr is not None and row[0] in chr):      # checks for chr #
             count = int(int(row[1]) / window)                       # number of windows
             res = int(window / numbins)
-            cm = np.zeros((count, 3 + numbins), dtype=object)       # array to hold bin counts info
             chr_i = row[0]
             for i in range(count):                                  # iterate over each window
                 win_start = i * window
                 win_finish = (i + 1) * window - 1
+                cm_i = np.zeros(3 + numbins, dtype=object)  # array to hold bin counts info
+                cm_i[0] = chr_i
+                cm_i[1] = win_start
+                cm_i[2] = win_finish
                 for j in range(numbins):                            # iterate over each bin
-                    cm[i, 0] = chr_i
-                    cm[i, 1] = win_start
-                    cm[i, 2] = win_finish
                     bin_start = win_start + j * res
                     bin_finish = win_start + (j + 1) * res - 1
-                    cm[i, j + 3] = bam.count(chr_i, bin_start, bin_finish)
+                    cm_i[j + 3] = bam.count(chr_i, bin_start, bin_finish)
+                cm.append(cm_i)
                 status_statement(i, count, 20, chr_i)
-            np.savetxt(fileout + ".csv", cm, fmt='%s', delimiter=',')
+    np.savetxt(fileout + ".csv", np.asarray(cm), fmt='%s', delimiter=',')
     bam.close()
 
 
@@ -304,11 +306,11 @@ def ttest_two(samp_file, ctrl_file, fileout, p=0.01):
     wig = open(fileout + ".wig", "w")
     chr_i = None
     prev = 0
-    chr_ctrl = np_ctrl[:, 0]                        #
+    chr_ctrl = np_ctrl[:, 0]                        # chr
     chr_samp = np_samp[:, 0]
-    ran_ctrl = np_ctrl[:, 1:3].astype(int)
+    ran_ctrl = np_ctrl[:, 1:3].astype(int)          # start and end coordinates
     ran_samp = np_samp[:, 1:3].astype(int)
-    bin_ctrl = np_ctrl[:, 3:].astype(int)
+    bin_ctrl = np_ctrl[:, 3:].astype(int)           # bins
     bin_samp = np_samp[:, 3:].astype(int)
     for i in range(count):
         if chr_samp[i] != chr_ctrl[i] or ran_samp[i, 0] != ran_ctrl[i, 0] \
@@ -319,14 +321,14 @@ def ttest_two(samp_file, ctrl_file, fileout, p=0.01):
             if chr_samp[i] != chr_i:
                 chr_i = chr_samp[i]
                 wig.write("variableStep\tchrom=%s\n" % chr_i)
-            ot[i, 0:3] = np_samp[i, 0:3]
-            ot[i, 3] = np.sum(bin_ctrl[i, :])
-            ot[i, 4] = np.sum(bin_samp[i, :])
+            ot[i, 0:3] = np_samp[i, 0:3]                    # chr, start, and end coordinates
+            ot[i, 3] = np.sum(bin_ctrl[i, :])               # sum of ctrl
+            ot[i, 4] = np.sum(bin_samp[i, :])               # sum of sample
             ttest = stats.ttest_rel(bin_samp[i, :], bin_ctrl[i, :])
-            ot[i, 5] = ttest[0]  # t test
-            ot[i, 6] = ttest[1]  # t test
+            ot[i, 5] = ttest[0]                             # t test
+            ot[i, 6] = ttest[1]                             # t test
             start_i = ran_samp[i, 0]
-            if ot[i, 5] > 0 and ot[i, 6] / 2 < p / count:
+            if ot[i, 5] > 0 and ot[i, 6] / 2 < p / count:   # one-sided t-test with Bonferroni
                 ot[i, 7] = 1
                 ot[i, 8] = start_i - prev
                 prev = start_i
@@ -336,4 +338,5 @@ def ttest_two(samp_file, ctrl_file, fileout, p=0.01):
                 ot[i, 8] = np.nan
                 wig.write("%i\t%i\n" % (start_i, 0))
             status_statement(i, count, 20, chr_i)
+    wig.close()
     np.savetxt(fileout + "_ttest.csv", ot, fmt='%s', delimiter=',')
