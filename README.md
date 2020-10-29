@@ -1,6 +1,13 @@
 Custom analysis software for ChIP-seq of DNA repair proteins after CRISPR/Cas9-mediated DSBs
 ====
 
+## Citation
+Please cite the following manuscript in press:
+
+Liu, Y., Zou, R.S., He, S., Nihongaki, Y., Li, X., Razavi, S., Wu, B. and Ha, T., 2020. Very fast CRISPR on demand. Science, 368(6496), pp.1265-1269.
+https://doi.org/10.1126/science.aay8204
+
+
 ## Software requirements
 - [python 2.7](https://www.anaconda.com/distribution/) (Anaconda's python distribution comes with the required numpy and scipy libraries)
 - [pysam](https://pysam.readthedocs.io/en/latest/installation.html)
